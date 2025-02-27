@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DocumentType {
+  TEXT
+  IMAGE
+  PDF
+  DOCX
+  PPTX
+  XLSX
+  CSV
+  JSON
+  XML
+  HTML
+}
+
+model Users {
+  id                 String   @id @default(uuid())
+  firstName          String
+  lastName           String
+  email              String   @unique
+  password           String?
+  googleId           String?
+  photo              String?
+  googleAccessToken  String?
+  googleRefreshToken String?
+  verified           Boolean? @default(false)
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Document  Document[]
+  Chat      Chat[]
+}
+
+model Document {
+  id           String       @id @default(uuid())
+  userId       String
+  user         Users        @relation(fields: [userId], references: [id])
+  filename     String
+  url          String
+  content      String?
+  uploadedAt   DateTime     @default(now())
+  DocumentType DocumentType @default(PDF)
+  Chat         Chat[]
+}
+
+model Chat {
+  id         String   @id @default(uuid())
+  userId     String
+  user       Users    @relation(fields: [userId], references: [id])
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
