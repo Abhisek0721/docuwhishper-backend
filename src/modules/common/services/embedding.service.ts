@@ -48,6 +48,13 @@ export class EmbeddingService {
     return result.matches.map((match) => match.metadata.text);
   }
 
+  async deleteAllEmbeddings(documentId: string) {
+    await this.pinecone.index('docuwhisper').deleteMany({
+      filter: { documentId }
+    });
+  }
+  
+
   private async getEmbedding(text: string): Promise<number[]> {
     const response = await this.openai.embeddings.create({
       model: 'text-embedding-ada-002',

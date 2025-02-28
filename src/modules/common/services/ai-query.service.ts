@@ -17,19 +17,15 @@ export class AIQueryService {
   async generateResponse(documentId: string, query: string) {
     const relevantChunks = await this.embeddingService.queryEmbedding(documentId, query);
     const context = relevantChunks.join('\n');
-    // const chatResponse = await this.openai.chat.completions.create({
-    //   model: 'gpt-4',
-    //   messages: [
-    //     { role: 'system', content: 'You are an AI assistant providing accurate information.' },
-    //     { role: 'user', content: `Context: ${context}\nUser Query: ${query}` },
-    //   ],
-    // });
-    const response = await axios.post(
-      envConstant.N8N_CHATBOT_WEBHOOK_URL,
-      { chatInput: `Context: ${context}\nUser Query: ${query}` },
-    );
+    const chatResponse = await this.openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: 'You are an AI assistant providing accurate information.' },
+        { role: 'user', content: `Context: ${context}\nUser Query: ${query}` },
+      ],
+    });
 
-    return {"answer": response.data?.message?.content};
+    return {"answer": chatResponse.choices[0].message.content};
   }
 
   async convertTextToSpeech(text: string) {

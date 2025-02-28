@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { JwtDto } from 'src/common/dtos/jwt.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CloudinaryService } from '@modules/common/services/cloudinary.service';
@@ -81,4 +81,54 @@ export class DocumentService {
 
     }
   }
+
+  async getAllDocuments(user: JwtDto) {
+    try {
+      const documents = await this.prisma.document.findMany({
+        where: {
+          userId: user.userId
+        },
+        select: {
+          id: true,
+          filename: true,
+          uploadedAt: true,
+        },
+        orderBy: {
+          uploadedAt: 'desc',
+        },
+      })
+      return documents;
+    } catch (error) {
+      if (error?.status === 500 || error?.statusCode === 500) {
+        this.logger.error(error?.stack);
+      }
+      throw error;
+    }
+  }
+
+  async deleteDocument(documentId: string) {
+    try {
+      const checkDocument = await this.prisma.document.findUnique({
+        where: {
+          id: documentId
+        }
+      });
+      if (!checkDocument) {
+        throw new NotFoundException('Document not found');
+      }
+      const document = await this.prisma.document.delete({
+        where: {
+          id: documentId
+        }
+      });
+      this.cloudinaryService.deleteFile(document.url);
+      return { message: 'Document deleted successfully' };
+    } catch (error) {
+      if (error?.status === 500 || error?.statusCode === 500) {
+        this.logger.error(error?.stack);
+      }
+      throw error;  
+    }
+  }
+
 }

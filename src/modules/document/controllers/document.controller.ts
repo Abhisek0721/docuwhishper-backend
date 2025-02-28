@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -36,6 +37,18 @@ export class DocumentController {
   @Get('content/:documentId')
   async getDocumentContent(@Param('documentId') documentId: string) {
     const data = await this.documentService.getDocumentContent(documentId);
+    return this.apiUtilsService.make_response(data);
+  }
+
+  @Get()
+  async getAllDocuments(@GetUser() user: JwtDto) {
+    const data = await this.documentService.getAllDocuments(user);
+    return this.apiUtilsService.make_response(data);
+  }
+
+  @Delete(':documentId')
+  async deleteDocument(@Param('documentId') documentId: string) {
+    const data = await this.documentService.deleteDocument(documentId);
     return this.apiUtilsService.make_response(data);
   }
 }
