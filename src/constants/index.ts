@@ -18,4 +18,16 @@ export const envConstant = {
     process.env.GOOGLE_LOGIN_REDIRECT_ENDPOINT || '/api/v1/auth/callback',
 
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || '',
+
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || '',
+
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || '',
+
+  PINECONE_API_KEY: process.env.PINECONE_API_KEY || '',
+
+  PINECONE_BASE_URL: process.env.PINECONE_BASE_URL || '',
+
+  N8N_CHATBOT_WEBHOOK_URL: process.env.N8N_CHATBOT_WEBHOOK_URL || '',
 };

@@ -26,7 +26,7 @@ async function bootstrap() {
 
   app.enableShutdownHooks();
   app.setGlobalPrefix('/api/v1', {
-    exclude: ['/'],
+    exclude: ['/', 'socket.io'],
   });
 
   await app.listen(envConstant.PORT, () => {
