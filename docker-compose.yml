@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  docuwhisper-backend-service:
+    container_name: docuwhisper-backend-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - '${PORT}:${PORT}'
+    restart: always
+    depends_on:
+      - docuwhisper-postgres-service
+    networks:
+      - docuwhisper_network
+
+  docuwhisper-postgres-service:
+    container_name: docuwhisper-postgres-service
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=docuwhisper
+    volumes:
+      - /home/docuwhisper/ALL_VOLUMES/docuwhisper-postgres:/var/lib/postgresql/data/
+
+    networks:
+      - docuwhisper_network
+
+networks:
+  docuwhisper_network:
+    name: docuwhisper_network
+    external: true
+
+volumes:
+  postgres_data:
