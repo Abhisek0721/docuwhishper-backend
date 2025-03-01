@@ -1,30 +1,49 @@
-import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody, ConnectedSocket } from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
 import { OpenAI } from 'openai';
 import { envConstant } from '@constants/index';
-@WebSocketGateway({ cors: true })
+import { EmbeddingService } from '@modules/common/services/embedding.service';
+
+@WebSocketGateway({ 
+  cors: true,
+  namespace: '/'
+})
 export class ChatGateway {
   @WebSocketServer() server: Server;
   private readonly openai: OpenAI;
 
-  constructor() {
+  constructor(
+    private readonly embeddingService: EmbeddingService
+  ) {
     this.openai = new OpenAI({
       apiKey: envConstant.OPENAI_API_KEY,
     });
   }
 
+  handleConnection(client: Socket) {
+    console.log(`Client connected: ${client.id}`);
+  }
+
   @SubscribeMessage('query')
-  async handleQuery(@MessageBody() data: { query: string }) {
-    const { query } = data;
+  async handleQuery(
+    @MessageBody() data: { query: string, documentId: string }, 
+    @ConnectedSocket() client: Socket
+  ) {
+    const { query, documentId } = data;
 
     // Notify user that AI is processing
-    this.server.emit('processing', { message: 'AI is thinking...' });
+    client.emit('processing', { message: 'AI is thinking...' });
 
     try {
+      const relevantChunks = await this.embeddingService.queryEmbedding(documentId, query);
+      const context = relevantChunks.join('\n');
       // Create OpenAI stream
       const stream = await this.openai.chat.completions.create({
         model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: query }],
+        messages: [
+          { role: 'system', content: 'You are an AI assistant providing accurate information.' },
+          { role: 'user', content: `Context: ${context}\nUser Query: ${query}` },
+        ],
         stream: true, // Enable streaming
       });
 
@@ -36,15 +55,18 @@ export class ChatGateway {
         fullResponse += token;
 
         // Emit token to user in real-time
-        this.server.emit('response', { text: token });
+        client.emit('response', { text: token });
       }
 
       // Emit final response
-      this.server.emit('done', { text: fullResponse });
+      client.emit('done', { text: fullResponse });
     } catch (error) {
       console.error('Error:', error);
-      this.server.emit('error', { message: 'Error processing your request.' });
+      client.emit('error', { message: 'Error processing your request.' });
     }
   }
 
+  handleDisconnect(client: Socket) {
+    console.log(`Client disconnected: ${client.id}`);
+  }
 }
