@@ -30,4 +30,6 @@ export const envConstant = {
   PINECONE_BASE_URL: process.env.PINECONE_BASE_URL || '',
 
   N8N_CHATBOT_WEBHOOK_URL: process.env.N8N_CHATBOT_WEBHOOK_URL || '',
+
+  ELEVEN_LABS_API_KEY : process.env.ELEVEN_LABS_API_KEY  || '',
 };
