@@ -26,7 +26,7 @@ services:
       - POSTGRES_PASSWORD=root
       - POSTGRES_DB=docuwhisper
     volumes:
-      - /home/docuwhisper/ALL_VOLUMES/docuwhisper-postgres:/var/lib/postgresql/data/
+      - docuwhisper-postgres_data:/var/lib/postgresql/data/
     ports:
       - '5433:5432'
     healthcheck:
@@ -43,4 +43,7 @@ networks:
     external: true
 
 volumes:
-  postgres_data:
+  docuwhisper-postgres_data:
+    driver: local
+    name: docuwhisper-postgres_data
+
