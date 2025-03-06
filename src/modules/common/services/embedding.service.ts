@@ -41,7 +41,7 @@ export class EmbeddingService {
     const result = await this.pinecone.index('docuwhisper').query({
       filter: { documentId },
       vector: queryEmbedding,
-      topK: 500,
+      topK: 1000,
       includeMetadata: true,
     });
 
