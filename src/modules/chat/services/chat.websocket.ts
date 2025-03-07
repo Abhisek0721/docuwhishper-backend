@@ -26,16 +26,16 @@ export class ChatGateway {
 
   @SubscribeMessage('query')
   async handleQuery(
-    @MessageBody() data: { query: string, documentId: string }, 
+    @MessageBody() data: { query: string, documentIds: string[] }, 
     @ConnectedSocket() client: Socket
   ) {
-    const { query, documentId } = data;
+    const { query, documentIds } = data;
 
     // Notify user that AI is processing
     client.emit('processing', { message: 'AI is thinking...' });
 
     try {
-      const relevantChunks = await this.embeddingService.queryEmbedding(documentId, query);
+      const relevantChunks = await this.embeddingService.queryEmbedding(documentIds, query);
       const context = relevantChunks.join('\n');
       // Create OpenAI stream
       const stream = await this.openai.chat.completions.create({

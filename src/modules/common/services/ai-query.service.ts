@@ -14,8 +14,8 @@ export class AIQueryService {
     });
   }
 
-  async generateResponse(documentId: string, query: string) {
-    const relevantChunks = await this.embeddingService.queryEmbedding(documentId, query);
+  async generateResponse(documentIds: string[], query: string) {
+    const relevantChunks = await this.embeddingService.queryEmbedding(documentIds, query);
     const context = relevantChunks.join('\n');
     const chatResponse = await this.openai.chat.completions.create({
       model: 'gpt-4o-mini',

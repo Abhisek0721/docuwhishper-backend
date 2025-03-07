@@ -16,9 +16,9 @@ export class ChatService {
 
   constructor(private readonly aiQueryService: AIQueryService) {}
 
-  async query(documentId: string, query: string) {
+  async query(documentIds: string[], query: string) {
     const response = await this.aiQueryService.generateResponse(
-      documentId,
+      documentIds,
       query,
     );
     return response;

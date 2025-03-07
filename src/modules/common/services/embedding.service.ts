@@ -35,11 +35,11 @@ export class EmbeddingService {
     }
   }
 
-  async queryEmbedding(documentId: string, query: string) {
+  async queryEmbedding(documentIds: string[], query: string) {
     const queryEmbedding = await this.getEmbedding(query);
 
     const result = await this.pinecone.index('docuwhisper').query({
-      filter: { documentId },
+      filter: { documentId: { $in: documentIds } },
       vector: queryEmbedding,
       topK: 1000,
       includeMetadata: true,

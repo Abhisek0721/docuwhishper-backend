@@ -13,8 +13,8 @@ export class ChatController {
   ) {}
 
   @Post('query')
-  async query(@Body() body: { documentId: string; query: string }) {
-    const response = await this.chatService.query(body.documentId, body.query);
+  async query(@Body() body: { documentIds: string[]; query: string }) {
+    const response = await this.chatService.query(body.documentIds, body.query);
     return this.apiUtilsService.make_response(response);
   }
 
