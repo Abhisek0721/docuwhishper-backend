@@ -3,7 +3,6 @@ import { Pinecone } from '@pinecone-database/pinecone';
 import OpenAI from 'openai';
 import { envConstant } from '@constants/index';
 
-
 @Injectable()
 export class EmbeddingService {
   private readonly openai: OpenAI;
@@ -41,7 +40,7 @@ export class EmbeddingService {
     const result = await this.pinecone.index('docuwhisper').query({
       filter: { documentId: { $in: documentIds } },
       vector: queryEmbedding,
-      topK: 1000,
+      topK: 100,
       includeMetadata: true,
     });
 
@@ -50,10 +49,9 @@ export class EmbeddingService {
 
   async deleteAllEmbeddings(documentId: string) {
     await this.pinecone.index('docuwhisper').deleteMany({
-      filter: { documentId }
+      filter: { documentId },
     });
   }
-  
 
   private async getEmbedding(text: string): Promise<number[]> {
     const response = await this.openai.embeddings.create({
